@@ -1,6 +1,3 @@
-<?php 
-include 'session.php';
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,26 +8,35 @@ include 'session.php';
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootswatch@4.5.2/dist/cyborg/bootstrap.min.css">
 </head>
 <body>
-    <?php include 'navigation.php';?>
-    <script src="button.js"></script>
     <div class="container mt-5">
         <h2 class="text-center">AmberSub, home of your favourites</h2>
-        <div class="row">
-            <?php 
-            $aniData = json_decode(file_get_contents('ani.json'), true);
-            foreach ($aniData as $ani){
-                echo '<div class="col-md-4">';
-                echo '<div class="ani">';
-                echo '<img src="'. $ani['cover'] .'" class="img-fluid" alt="'. $ani['name'].'">';
-                echo '<h3>' . $ani['name'] . '</h3>';
-                echo '<p>Episodes:' .$ani['episodes'] . '</p>'; 
-                // Modify the link to include the anime name as a query parameter
-                echo '<a href="indani.php?name=' . urlencode($ani['name']) . '" class="btn btn-primary">View Details</a>';
-                echo '</div>';
-                echo '</div>';
-            }
-            ?> 
-        </div>
+        <div class="row" id="animeList"></div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Fetch anime data from ani.json using JavaScript
+            fetch('ani.json')
+                .then(response => response.json())
+                .then(data => {
+                    const animeList = document.getElementById('animeList');
+                    data.forEach(anime => {
+                        const animeDiv = document.createElement('div');
+                        animeDiv.classList.add('col-md-4');
+                        animeDiv.innerHTML = `
+                            <div class="ani">
+                                <img src="${anime.cover}" class="img-fluid" alt="${anime.name}">
+                                <h3>${anime.name}</h3>
+                                <p>Episodes: ${anime.episodes}</p>
+                                <a href="indani.php?name=${encodeURIComponent(anime.name)}" class="btn btn-primary">View Details</a>
+                            </div>
+                        `;
+                        animeList.appendChild(animeDiv);
+                    });
+                })
+                .catch(error => console.error('Error fetching JSON:', error));
+        });
+    </script>
 </body>
 </html>
+
